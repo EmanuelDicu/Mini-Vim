@@ -1,0 +1,44 @@
+Tema are ca scop implementarea unui editor VIM minimal care executa
+comenzi precum delete line / goto line / goto char / backspace /
+replace / replace all, dar si undo / redo, toate comenzile
+executandu-se on-line folosind o lista pentru comenzi, respectiv
+2 stive pentru mentinerea caracterului persistent a structurii de
+date. 
+
+Enuntul complet se gaseste in fisierul "tema1_sd.pdf".
+
+Ideea principala a algoritmului este urmatoarea:
+- definesc 2 tipuri de operatii
+    - operatii 'atomice' (pe care le-am numit 'comenzi'): acestea
+        sunt operatiile de insert si erase pe lista
+    - operatii 'complexe': acestea sunt operatiile date in enunt si
+        pentru fiecare astfel de operatie creez o structura care 
+        contine 3 lucruri: pozitia cursorului inainte de aplicarea
+        operatiei, pozitia cursorului dupa aplicare si vectorul cu
+        operatiile atomice care sunt efectuate la operatia complexa
+        curenta (ex: la inserarea unui paragraf o sa am un vector cu
+        inserturile facute pe lista, la stergerea unei linii o sa am 
+        un vector cu nodurile sterse din lista, la replace o sa am
+        atat inserturi cat si eraseuri pe lista, etc)
+- operatiile 'atomice' sunt definite in fisierul "operations.h", 
+    cele 'complexe' in "operations.c" iar main-ul este in fisierul
+    principal "editor.c"
+- fiecare operatie complexa corespunde unui nod din stivele de undo/
+    redo, astfel o operatie de undo se reduce la a aplica operatia
+    inversa (care este foarte simplu aplicarea in ordine inversa a
+    inverselor fiecarei operatii atomice in parte), si mutarea 
+    corespunzatoare a cursorului
+- implementarea pentru stiva/lista se gasesc in fisierele "stack.c"/
+    "list.c"
+- cateva functii utilitare (de exemplu pentru determinarea 
+    argumentelor optionale de la unele comenzi gen gc) se gasesc in 
+    fisierul "utilityfile.c"
+- in fisierul principal "editor.c" se va procesa inputul astfel
+    - daca ma aflu in modul insert atunci citesc pana cand ajung fie
+        la finalul inputului, fie pana cand trec in modul de comanda,
+        moment in care transform tot paragraful citit intr-o singura
+        operatie de inserare text
+    - daca ma aflu in modul de comanda, apelez functia specifica 
+        acelei comenzi care va modifica corespunzator lista si stivele
+    - la final afisez raspunsul si golesc stivele si lista
+- fiecare functie in parte este explicata mai pe larg in cod
